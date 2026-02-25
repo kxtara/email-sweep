@@ -1,0 +1,25 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/kxtara/email-sweep#readme",
+  "bugs": {
+    "url": "https://github.com/kxtara/email-sweep/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kxtara/email-sweep.git"
+  },
+  "license": "ISC",
+  "author": "Kiara Hoheb",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@google-cloud/local-auth": "^2.1.0",
+    "express": "^5.2.1",
+    "googleapis": "^105.0.0"
+  }
+}
