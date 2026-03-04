@@ -70,9 +70,7 @@ To comply with Google’s **CASA (Cloud App Security Assessment)** requirements 
 ---
 
 ## 🛠️ Lessons Learned
-* **OAuth Lifecycle:** Navigating the complexities of refresh tokens vs. access tokens and maintaining session persistence.
-* **API Optimization:** Implementing batching logic to handle Gmail API rate limits during large sweeps.
-* **Security First:** Designing the app to use `modify` (Trash) instead of permanent `delete` to ensure user data remains recoverable for 30 days.
+
 
 ---
 
