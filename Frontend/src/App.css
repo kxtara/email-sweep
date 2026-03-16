@@ -1,42 +1,76 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+@reference "./index.css";
+
+/* Layout Elements */
+.summary-header {
+  @apply mb-16 pt-12 pb-8 border-b border-slate-100 text-center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.safety-card {
+  @apply mb-10 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm transition-all;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Bucket Cards */
+.bucket-card {
+  @apply p-6 rounded-2xl border-2 bg-white cursor-pointer transition-all duration-300 relative overflow-hidden;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.bucket-card:hover {
+  @apply border-slate-300 shadow-xl -translate-y-1;
 }
 
-.card {
-  padding: 2em;
+.bucket-card.selected {
+  @apply border-blue-600 bg-blue-50/30 shadow-md;
 }
 
-.read-the-docs {
-  color: #888;
+.bucket-card.danger-red .badge {
+  @apply bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold uppercase;
+}
+
+.bucket-card.warning-orange .badge {
+  @apply bg-amber-100 text-amber-600 px-3 py-1 rounded-full text-xs font-bold uppercase;
+}
+
+.stat-label {
+  @apply text-[10px] uppercase text-slate-400 font-bold block;
+}
+
+.stat-value {
+  @apply text-lg font-bold;
+}
+
+/* Modals */
+.modal-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm;
+}
+
+.modal-content {
+  @apply bg-white rounded-3xl shadow-2xl p-8 w-full;
+}
+
+/* Buttons */
+.btn-secondary {
+  @apply px-6 py-3 border border-slate-200 rounded-xl font-semibold text-slate-600 hover:bg-slate-50 transition-colors;
+}
+
+.btn-danger {
+  @apply px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors shadow-lg;
+}
+
+/* Animations (Regular CSS) */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
