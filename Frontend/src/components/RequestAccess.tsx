@@ -5,7 +5,6 @@ export type RequestAccessStatus =
   | { type: 'error'; message: string }
 
 type RequestAccessProps = {
-  spacesLeft: number
   isSubmitting: boolean
   status?: RequestAccessStatus
   onSubmit: (email: string) => void
@@ -13,14 +12,13 @@ type RequestAccessProps = {
 }
 
 export function RequestAccess({
-  spacesLeft,
   isSubmitting,
   status,
   onSubmit,
   onBack,
 }: RequestAccessProps) {
   const [email, setEmail] = useState('')
-  const isDisabled = isSubmitting || spacesLeft <= 0
+  const isDisabled = isSubmitting
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -41,13 +39,6 @@ export function RequestAccess({
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Available spaces</h2>
-          <p className="text-sm text-gray-600 mb-6">
-            {spacesLeft > 0
-              ? `${spacesLeft.toLocaleString()} spaces remaining.`
-              : 'No spaces currently available.'}
-          </p>
-
           <form
             onSubmit={(e) => {
               e.preventDefault()
