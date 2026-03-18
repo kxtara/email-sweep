@@ -1,8 +1,8 @@
 import nodemailer from "nodemailer";
 import z from "zod";
-import { env } from "../config/env";
+import { env } from "../config/env.js";
 
-const emailSchema = z.string().email();
+const emailSchema = z.email();
 
 export const sendAccessRequestEmail = async (
   requestedEmail: string 
