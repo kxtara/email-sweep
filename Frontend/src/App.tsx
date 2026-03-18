@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import axios from 'axios'
 import {
   SummaryHeader,
   CleanupBuckets,
@@ -20,19 +21,10 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false)
 
   const [view, setView] = useState<'home' | 'request'>('home')
-  const [spacesLeft, setSpacesLeft] = useState<number>(() => {
-    const stored = window.localStorage.getItem('spacesLeft')
-    const parsed = stored ? parseInt(stored, 10) : NaN
-    return Number.isFinite(parsed) ? parsed : 70
-  })
   const [requestStatus, setRequestStatus] = useState<RequestAccessStatus | { type: 'idle' }>({ type: 'idle' })
   const [isRequesting, setIsRequesting] = useState(false)
 
   const [selectedCategories, setSelectedCategories] = useState<Record<string, boolean>>({})
-
-  useEffect(() => {
-    window.localStorage.setItem('spacesLeft', spacesLeft.toString())
-  }, [spacesLeft])
 
   const cleanupBuckets: CleanupBucket[] = [
     {
@@ -40,6 +32,7 @@ function App() {
       label: 'Deep Clean',
       description: 'Emails older than 1 year',
       query: 'older_than:1y -is:starred',
+      maxResults: 20,
       visual_style: 'danger-red',
       estimated_count: '2,450',
       size_reclaimed: '850 MB',
@@ -49,6 +42,7 @@ function App() {
       label: 'Seasonal Sweep',
       description: 'Emails older than 6 months',
       query: 'older_than:6m -is:starred',
+      maxResults: 20,
       visual_style: 'warning-orange',
       estimated_count: '1,120',
       size_reclaimed: '420 MB',
@@ -74,21 +68,15 @@ function App() {
   const handleRequestAccess = async (email: string) => {
     console.log('Request access for', email)
 
-    if (spacesLeft <= 0) {
-      setRequestStatus({ type: 'error', message: 'No spaces left. Please try again later.' })
-      return
-    }
-
     setRequestStatus({ type: 'idle' })
     setIsRequesting(true)
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1200))
-      setSpacesLeft((prev) => Math.max(0, prev - 1))
+      axios.post('http://localhost:3000/auth/request',{email})
       setRequestStatus({
         type: 'success',
-        message: 'Thanks! We saved your spot and will email you soon.',
-      })
+        message: 'Thanks! If there is a spot available, you will receive an email.'      })
     } catch (error) {
       console.error('Request access failed', error)
       setRequestStatus({ type: 'error', message: 'Something went wrong. Please try again.' })
@@ -132,7 +120,6 @@ function App() {
   if (view === 'request') {
     return (
       <RequestAccess
-        spacesLeft={spacesLeft}
         isSubmitting={isRequesting}
         status={requestStatus.type === 'idle' ? undefined : requestStatus}
         onSubmit={handleRequestAccess}
@@ -153,7 +140,7 @@ function App() {
 
           <div className="flex flex-col-reverse items-center gap-3 pt-5">
             <span className="text-sm text-gray-600">
-              Spaces left: <span className="font-semibold text-gray-900">{spacesLeft}</span>
+              Limited Spaces
             </span>
             <button
               onClick={() => {
