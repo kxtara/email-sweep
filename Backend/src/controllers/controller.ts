@@ -1,27 +1,30 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { google } from "googleapis";
-import { oauth2Client } from "../config/googleClient";
-import open from "open";
-import { sendAccessRequestEmail } from "../utils/requestAccess";
+import { oauth2Client } from "../config/googleClient.js";
+import { sendAccessRequestEmail } from "../utils/requestAccess.js";
 
 
-export const auth = async (_req: Request, res: Response): Promise<void> => {
+export const auth = async (_req: Request, res: Response,next: NextFunction): Promise<void> => {
 const SCOPES = [
   "https://www.googleapis.com/auth/gmail.modify",
   "https://www.googleapis.com/auth/gmail.readonly",
 ];
 
-  const authUrl = oauth2Client.generateAuthUrl({
-      access_type: "offline",
-      scope: SCOPES,
-      prompt: "consent",
-    });
-
-        await res.redirect(authUrl);
-    res.send("Check your browser to sign in to Google.")
+ try {
+   const authUrl = oauth2Client.generateAuthUrl({
+       access_type: "offline",
+       scope: SCOPES,
+       prompt: "consent",
+     });
+ 
+         await res.redirect(authUrl);
+     res.send("Check your browser to sign in to Google.")
+ } catch (err) {
+  next(err)
+ }
 }
 
-export const gmail = async (req: Request, res: Response): Promise<void> => {
+export const gmail = async (req: Request, res: Response,next : NextFunction): Promise<void> => {
   const code = req.query.code as string;
   if (!code) {
     res.status(400).send("No code found.");
@@ -57,11 +60,11 @@ export const gmail = async (req: Request, res: Response): Promise<void> => {
     }
 
   } catch (err) {
-    console.error("Gmial Cleanup Error:", err);
+    next(err)
   }
 };
 
-export const accessRequestEmail = async (req: Request, res: Response):Promise<void> => {
+export const accessRequestEmail = async (req: Request, res: Response, next: NextFunction):Promise<void> => {
   try {
     const {email} = req.body;
     await sendAccessRequestEmail(email)
@@ -70,6 +73,6 @@ export const accessRequestEmail = async (req: Request, res: Response):Promise<vo
       message : "Email request sent."
     })
   } catch (err) {
-    res.status(500).json({ error: "Failed to send email" });
+    next(err)
   }
 }
