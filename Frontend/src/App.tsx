@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import axios from 'axios'
+import { useState } from "react";
+import axios from "axios";
 import {
   SummaryHeader,
   CleanupBuckets,
@@ -11,121 +11,197 @@ import {
   type RequestAccessStatus,
   type CleanupBucket,
   type CategoryToggle,
-} from './components'
-import './App.css'
+} from "./components";
+import "./App.css";
 
 function App() {
-  const [selectedBucket, setSelectedBucket] = useState<CleanupBucket | null>(null)
-  const [excludeStarred, setExcludeStarred] = useState(true)
-  const [showConfirmation, setShowConfirmation] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
+  const categories: CategoryToggle[] = [
+    // --- Smart Categories (Google's Automatic Sorting) ---
+    { label: "Promotions", default_on: true, category: "category:promotions" },
+    { label: "Social", default_on: true, category: "category:social" },
+    { label: "Updates", default_on: true, category: "category:updates" },
+    { label: "Forums", default_on: false, category: "category:forums" },
+    { label: "Primary", default_on: true, category: "category:primary" },
 
-  const [view, setView] = useState<'home' | 'request'>('home')
-  const [requestStatus, setRequestStatus] = useState<RequestAccessStatus | { type: 'idle' }>({ type: 'idle' })
-  const [isRequesting, setIsRequesting] = useState(false)
+    // --- System States ---
+    { label: "Important", default_on: false, category: "is:important" },
+    { label: "Unread", default_on: false, category: "is:unread" },
 
-  const [selectedCategories, setSelectedCategories] = useState<Record<string, boolean>>({})
+    // --- Common Use Cases ---
+    { label: "Purchases", default_on: false, category: "label:purchases" }, // Often auto-generated
+    { label: "Finance", default_on: false, category: "label:finance" },
+    { label: "Travel", default_on: false, category: "label:travel" },
+
+    // --- Newsletters & Bulk (Usually requires specific label logic) ---
+    { label: "Newsletters", default_on: false, category: "label:newsletters" },
+  ];
+
+  const [selectedBucket, setSelectedBucket] = useState<CleanupBucket | null>(
+    null,
+  );
+  const [excludeStarred, setExcludeStarred] = useState(true);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const [view, setView] = useState<"home" | "request">("home");
+  const [requestStatus, setRequestStatus] = useState<
+    RequestAccessStatus | { type: "idle" }
+  >({ type: "idle" });
+  const [isRequesting, setIsRequesting] = useState(false);
+
+  const [selectedCategories, setSelectedCategories] = useState<
+    Record<string, boolean>
+  >(
+    categories.reduce(
+      (acc, cat) => ({ ...acc, [cat.label]: cat.default_on }),
+      {},
+    ),
+  );
 
   const cleanupBuckets: CleanupBucket[] = [
     {
-      id: 'older_than_1y',
-      label: 'Deep Clean',
-      description: 'Emails older than 1 year',
-      query: 'older_than:1y -is:starred',
+      id: "older_than_1y",
+      label: "Deep Clean",
+      description: "Emails older than 1 year",
+      query: "older_than:1y",
       maxResults: 20,
-      visual_style: 'danger-red',
-      estimated_count: '2,450',
-      size_reclaimed: '850 MB',
+      visual_style: "danger-red",
+      estimated_count: "2,450",
+      size_reclaimed: "850 MB",
     },
     {
-      id: 'older_than_6m',
-      label: 'Seasonal Sweep',
-      description: 'Emails older than 6 months',
-      query: 'older_than:6m -is:starred',
+      id: "older_than_6m",
+      label: "Seasonal Sweep",
+      description: "Emails older than 6 months",
+      query: "older_than:6m",
       maxResults: 20,
-      visual_style: 'warning-orange',
-      estimated_count: '1,120',
-      size_reclaimed: '420 MB',
+      visual_style: "warning-orange",
+      estimated_count: "1,120",
+      size_reclaimed: "420 MB",
     },
-  ]
+  ];
 
-  const categories: CategoryToggle[] = [
-    { label: 'Promotions', default_on: true, category: 'category:promotions' },
-    { label: 'Social Updates', default_on: true, category: 'category:social' },
-    { label: 'Newsletters', default_on: false, category: 'label:newsletters' },
-  ]
-
-  const statusMessages = ['Scanning Gmail...', 'Filtering starred items...', 'Sweeping...']
+  const statusMessages = [
+    "Scanning Gmail...",
+    "Filtering starred items...",
+    "Sweeping...",
+  ];
 
   const handleBucketSelect = (bucket: CleanupBucket) => {
-    setSelectedBucket(bucket)
-  }
+    setSelectedBucket(bucket);
+  };
 
   const handleCategoryToggle = (label: string, isEnabled: boolean) => {
-    setSelectedCategories((prev) => ({ ...prev, [label]: isEnabled }))
-  }
+    setSelectedCategories((prev) => ({ ...prev, [label]: isEnabled }));
+  };
 
+  // -------------
   const handleRequestAccess = async (email: string) => {
-    console.log('Request access for', email)
+    console.log("Request access for", email);
 
-    setRequestStatus({ type: 'idle' })
-    setIsRequesting(true)
+    setRequestStatus({ type: "idle" });
+    setIsRequesting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1200))
-      axios.post('http://localhost:3000/auth/request',{email})
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      axios.post("http://localhost:3000/auth/request", { email });
       setRequestStatus({
-        type: 'success',
-        message: 'Thanks! If there is a spot available, you will receive an email.'      })
+        type: "success",
+        message:
+          "Thanks! If there is a spot available, you will receive an email.",
+      });
     } catch (error) {
-      console.error('Request access failed', error)
-      setRequestStatus({ type: 'error', message: 'Something went wrong. Please try again.' })
+      console.error("Request access failed", error);
+      setRequestStatus({
+        type: "error",
+        message: "Something went wrong. Please try again.",
+      });
     } finally {
-      setIsRequesting(false)
+      setIsRequesting(false);
     }
-  }
+  };
 
-  const handleSweep = () => {
-    if (selectedBucket) {
-      setShowConfirmation(true)
+  const handleSweep = async () => {
+    const excludedQueries = categories
+      .filter((cat) => selectedCategories[cat.label]) // check the Record<string, boolean>
+      .map((cat) => `-${cat.category}`);
+
+    if (excludedQueries.length === 0 && !selectedBucket) {
+      console.log("Nothing selected to sweep!");
+      return null;
     }
-  }
+
+    const categoryPart = excludedQueries.join(" ");
+    const exclusionPart = excludeStarred ? "-is:starred" : "";
+    const bucketPart = selectedBucket?.query;
+
+    const finalQuery = `${bucketPart} ${categoryPart} ${exclusionPart}`.trim();
+
+    const response = await fetch("http://localhost:3000/auth/cleanup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ searchQuery: finalQuery }),
+    });
+
+    if (!response.ok) throw new Error("Cleanup request failed");
+
+    return await response.json();
+  };
+
+  // -------------
+
+  const handleLogin = async () => {
+    console.log("Login");
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      window.location.href = "http://localhost:3000/auth";
+    } catch (error) {
+      console.error("Login failed", error);
+    }
+  };
 
   const handleConfirmSweep = async () => {
-    setShowConfirmation(false)
-    setIsProcessing(true)
-
+    setIsProcessing(true);
+    setShowConfirmation(false);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 3000))
-      // Here you would call your backend API to perform the actual sweep
-      console.log('Sweep completed', {
+      const [result] = await Promise.all([
+        handleSweep(),
+        new Promise((resolve) => setTimeout(resolve, 2500)), // Minimum 2.5s delay
+      ]);
+      if (result) {
+        console.log(`Sweep completed: Trashed ${result.count} emails`);
+        // Update a state here to show a "Success" message to the user
+      }
+      console.log("Sweep completed", {
         bucket: selectedBucket,
         excludeStarred,
         selectedCategories,
-      })
+      });
+
+      setShowConfirmation(false);
     } catch (error) {
-      console.error('Sweep failed', error)
+      console.error("Sweep failed", error);
+      alert("Something went wrong during the sweep.");
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   const getTimeframeLabel = () => {
-    if (selectedBucket?.id === 'older_than_1y') return 'past year'
-    if (selectedBucket?.id === 'older_than_6m') return 'past 6 months'
-    return 'selected period'
-  }
+    if (selectedBucket?.id === "older_than_1y") return "past year";
+    if (selectedBucket?.id === "older_than_6m") return "past 6 months";
+    return "selected period";
+  };
 
-  if (view === 'request') {
+  if (view === "request") {
     return (
       <RequestAccess
         isSubmitting={isRequesting}
-        status={requestStatus.type === 'idle' ? undefined : requestStatus}
+        status={requestStatus.type === "idle" ? undefined : requestStatus}
         onSubmit={handleRequestAccess}
-        onBack={() => setView('home')}
+        onBack={() => setView("home")}
       />
-    )
+    );
   }
 
   return (
@@ -134,22 +210,32 @@ function App() {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Email Sweep</h1>
-            <p className="text-sm text-gray-600 mt-1">Powered by Google OAuth 2.0</p>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Email Sweep
+            </h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Powered by Google OAuth 2.0
+            </p>
           </div>
 
           <div className="flex flex-col-reverse items-center gap-3 pt-5">
-            <span className="text-sm text-gray-600">
-              Limited Spaces
-            </span>
+            <span className="text-sm text-gray-600">Limited Spaces</span>
             <button
               onClick={() => {
-                setView('request')
-                setRequestStatus({ type: 'idle' })
+                setView("request");
+                setRequestStatus({ type: "idle" });
               }}
               className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
             >
               Request Access
+            </button>
+            <button
+              onClick={() => {
+                handleLogin();
+              }}
+              className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+            >
+              Login
             </button>
           </div>
         </div>
@@ -168,7 +254,10 @@ function App() {
         />
 
         {/* Category Toggles */}
-        <CategoryToggles categories={categories} onToggle={handleCategoryToggle} />
+        <CategoryToggles
+          categories={categories}
+          onToggle={handleCategoryToggle}
+        />
 
         {/* Safety Features */}
         <SafetyFeatures
@@ -179,11 +268,11 @@ function App() {
         {/* Action Buttons */}
         <div className="flex gap-4 mb-12">
           <button
-            onClick={handleSweep}
+            onClick={() => setShowConfirmation(true)}
             disabled={!selectedBucket || isProcessing}
             className="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
           >
-            {isProcessing ? 'Processing...' : 'Start Cleanup'}
+            {isProcessing ? "Processing..." : "Start Cleanup"}
           </button>
           <button
             onClick={() => setSelectedBucket(null)}
@@ -200,15 +289,19 @@ function App() {
             <div>
               <h3 className="font-semibold text-gray-900 mb-3">How it works</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Select a cleanup option that matches your needs, configure your safety preferences, 
-                then confirm to delete the selected emails. Protected emails will never be affected.
+                Select a cleanup option that matches your needs, configure your
+                safety preferences, then confirm to delete the selected emails.
+                Protected emails will never be affected.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Privacy & Security</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">
+                Privacy & Security
+              </h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Email Sweep uses Google OAuth 2.0 for secure authentication. We only process emails 
-                matching your criteria and never store your data on our servers.
+                Email Sweep uses Google OAuth 2.0 for secure authentication. We
+                only process emails matching your criteria and never store your
+                data on our servers.
               </p>
             </div>
           </div>
@@ -218,16 +311,19 @@ function App() {
       {/* Modals */}
       <ConfirmationModal
         isOpen={showConfirmation}
-        count={selectedBucket?.estimated_count || '0'}
+        count={selectedBucket?.estimated_count || "0"}
         timeframe={getTimeframeLabel()}
         onConfirm={handleConfirmSweep}
         onCancel={() => setShowConfirmation(false)}
         isLoading={isProcessing}
       />
 
-      <ProgressIndicator isActive={isProcessing} statusMessages={statusMessages} />
+      <ProgressIndicator
+        isActive={isProcessing}
+        statusMessages={statusMessages}
+      />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
