@@ -38,7 +38,8 @@ export function RequestAccess({
       </header>
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">          
+
           <form
             onSubmit={(e) => {
               e.preventDefault()

@@ -3,7 +3,7 @@ export interface CleanupBucket {
   label: string
   description: string
   query: string
-  maxResults: number,
+  maxResults: number
   visual_style: 'danger-red' | 'warning-orange'
   estimated_count: string
   size_reclaimed: string
