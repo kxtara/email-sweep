@@ -5,8 +5,8 @@ import path from "path";
 dotenv.config({path: path.resolve(process.cwd(),'.env')});
 
 const envSchema = z.object({
-    PORT: z.preprocess((input) => {
-        if(typeof input === "string" && input.trim() === "") return undefined;
+    PORT: z.preprocess((input: unknown) => {
+        if (typeof input === "string" && input.trim() === "") return undefined;
         return Number(input);
     }, z.number().default(3000)),
     EMAIL: z.email(),
