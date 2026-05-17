@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export type RequestAccessStatus =
   | { type: 'success'; message: string }
@@ -19,6 +19,13 @@ export function RequestAccess({
 }: RequestAccessProps) {
   const [email, setEmail] = useState('')
   const isDisabled = isSubmitting
+
+  useEffect(() => {
+    if (status?.type !== 'success') return
+    setEmail('')
+    const id = window.setTimeout(() => setEmail(''), 0)
+    return () => window.clearTimeout(id)
+  }, [status])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -41,6 +48,7 @@ export function RequestAccess({
         <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">          
 
           <form
+            autoComplete="off"
             onSubmit={(e) => {
               e.preventDefault()
               if (!email.trim()) return
@@ -55,6 +63,8 @@ export function RequestAccess({
               <input
                 id="email"
                 type="email"
+                name="request-access-email"
+                autoComplete="off"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
