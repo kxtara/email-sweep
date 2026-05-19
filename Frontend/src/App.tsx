@@ -64,20 +64,20 @@ function App() {
       label: "Deep Clean",
       description: "Emails older than 1 year",
       query: "older_than:1y",
-      maxResults: 20,
+      maxResults: 500,
       visual_style: "danger-red",
-      estimated_count: "2,450",
-      size_reclaimed: "850 MB",
+      estimated_count: "500",
+      size_reclaimed: "35 MB",
     },
     {
       id: "older_than_6m",
       label: "Seasonal Sweep",
       description: "Emails older than 6 months",
       query: "older_than:6m",
-      maxResults: 20,
+      maxResults: 200,
       visual_style: "warning-orange",
-      estimated_count: "1,120",
-      size_reclaimed: "420 MB",
+      estimated_count: "200",
+      size_reclaimed: "18 MB",
     },
   ];
 
@@ -131,21 +131,29 @@ function App() {
       return null;
     }
 
-    const categoryPart = excludedQueries.join(" ");
+    const categoryPart = excludedQueries.length > 0 
+    ? `(${excludedQueries.join(" OR ")})` 
+    : "";
     const exclusionPart = excludeStarred ? "-is:starred" : "";
-    const bucketPart = selectedBucket?.query;
+    const bucketPart = selectedBucket?.query || "";
+    const maxResults = selectedBucket?.maxResults || 25;
+    const finalQuery = `${bucketPart} ${categoryPart} ${exclusionPart}`.replace(/\s+/g, ' ').trim();
 
-    const finalQuery = `${bucketPart} ${categoryPart} ${exclusionPart}`.trim();
+    console.log("Sending query to backend:", finalQuery);
 
     const response = await fetch("http://localhost:3000/auth/cleanup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ searchQuery: finalQuery }),
+      body: JSON.stringify({ searchQuery: finalQuery, maxResults }),
+      credentials: "include", // Important for sending cookies
     });
 
     if (!response.ok) throw new Error("Cleanup request failed");
+    
+    const data = await response.json();
+    window.alert(`Successfully trashed ${data.count} messages. Saved ${data.megabytesSaved} MB.`);
 
-    return await response.json();
+    return data;
   };
 
   // -------------
