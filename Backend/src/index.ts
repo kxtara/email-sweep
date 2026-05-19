@@ -2,11 +2,17 @@ import dotenv from "dotenv";
 import express from "express";
 import router from "./routes/routes.js";
 import cors from 'cors';
+import session from "express-session";
 
 dotenv.config();
 
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   console.error("Missing Google API credentials in .env");
+  process.exit(1);
+}
+
+if (!process.env.SESSION_SECRET) {
+  console.error("Missing session secret in .env");
   process.exit(1);
 }
 
@@ -18,6 +24,17 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true if using HTTPS
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 1 day
+  }
+}));
 
 app.use(cors(corsOptions));
 
