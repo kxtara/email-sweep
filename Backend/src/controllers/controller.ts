@@ -78,10 +78,6 @@ export const runCleanup = async (
     if (messages.length > 0) {
       const ids = messages.map((m) => m.id).filter((id): id is string => !!id);
 
-      // await Promise.all(
-      //   ids.map(id => gmailApi.users.messages.trash({userId: "me",id}))
-      // )
-
       // Get details of each message before trashing
       const messageDetails = await Promise.all(
         ids.map((id) =>
@@ -98,7 +94,6 @@ export const runCleanup = async (
         (sum, msg) => sum + (msg.data.sizeEstimate || 0),
         0,
       );
-      console.log(`Total size of messages to be trashed: ${totalBytes} bytes`);
 
       // convert bytes to megabytes and round to 2 decimal places
       const totalMegabytes = parseFloat(
@@ -114,9 +109,7 @@ export const runCleanup = async (
         },
       });
 
-      console.log(
-        `Successfully trashed ${ids.length} messages. Saved ${totalMegabytes} MB.`,
-      );
+      
       return res
         .status(200)
         .json({

@@ -5,7 +5,8 @@ export function SummaryHeader() {
         Clear the Clutter
       </h1>
       <p className="max-w-2xl mx-auto text-lg text-slate-500 leading-relaxed">
-        Select a cleanup option below to remove non-essential emails and reclaim storage space. 
+        Select a cleanup option below to move non-essential emails to your trash. 
+        <strong> Once there, you can permanently delete them to reclaim your storage space.</strong> 
         Your important and starred messages will always be protected.
       </p>
     </div>
