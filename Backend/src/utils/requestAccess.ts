@@ -4,11 +4,12 @@ import { env } from "../config/env.js";
 
 const emailSchema = z.email();
 
+/** Notifies that a new user wants beta access. */
 export const sendAccessRequestEmail = async (
   requestedEmail: string 
 ): Promise<void> => {
 
-    const validatedEmail = emailSchema.parse(requestedEmail);
+  const validatedEmail = emailSchema.parse(requestedEmail);
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
