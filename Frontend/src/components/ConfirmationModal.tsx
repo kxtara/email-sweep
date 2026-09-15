@@ -21,8 +21,7 @@ export function ConfirmationModal({
     <div className="modal-overlay">
       <div className="modal-content max-w-md">
         <div className="flex items-center gap-3 text-red-600 mb-4">
-            alert triangle icon
-          {/* <AlertTriangle size={28} /> */}
+          <span aria-hidden="true">⚠</span>
           <h2 className="text-2xl font-bold">Confirm Deletion</h2>
         </div>
         <p className="text-slate-600 mb-6 leading-relaxed">
