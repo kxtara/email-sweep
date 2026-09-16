@@ -42,6 +42,17 @@ export function createApp() {
       "DATABASE_URL is not set. Sessions are stored in memory and will be lost on restart.",
     );
   }
+  
+  // credentials: true is required so the browser sends session cookies on
+  // cross-origin requests from the React frontend.
+  app.use(
+    cors({
+      origin: env.FRONTEND_URL,
+      credentials: true,
+      methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }),
+  );
 
   app.use(
     session({
@@ -62,16 +73,6 @@ export function createApp() {
     }),
   );
 
-  // credentials: true is required so the browser sends session cookies on
-  // cross-origin requests from the React frontend.
-  app.use(
-    cors({
-      origin: env.FRONTEND_URL,
-      credentials: true,
-      methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-    }),
-  );
 
   // Cap body size to limit abuse of JSON endpoints.
   app.use(express.json({ limit: "16kb" }));
