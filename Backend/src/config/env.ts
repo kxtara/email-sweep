@@ -22,6 +22,7 @@ const envSchema = z
     EMAIL_PASSWORD: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
+    RESEND_API_KEY:z.string().min(1),
     GOOGLE_REDIRECT_URI: z
       .url()
       .default("http://localhost:3000/auth/google/callback"),
