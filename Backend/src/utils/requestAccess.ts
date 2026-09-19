@@ -13,6 +13,8 @@ export const sendAccessRequestEmail = async (
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
+    port: 587,              // Use 587 instead of 25
+    secure: false,          // true for port 465, false for 587
     auth: {
       user: env.EMAIL,
       pass: env.EMAIL_PASSWORD,
