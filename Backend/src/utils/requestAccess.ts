@@ -7,15 +7,13 @@ const emailSchema = z.string().email();
 // Define transporter once outside the route function
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // TLS
+  port: 465,
+  secure: true, // Use SSL for port 465
   auth: {
     user: env.EMAIL,
-    pass: env.EMAIL_PASSWORD,
+    pass: env.EMAIL_PASSWORD, // Must be a 16-character Google App Password
   },
-  // Set explicit timeouts to fail fast if blocked
   connectionTimeout: 10000, 
-  greetingTimeout: 5000,
   socketTimeout: 10000,
 });
 
