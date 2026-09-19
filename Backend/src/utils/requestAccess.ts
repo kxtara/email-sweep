@@ -1,31 +1,21 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import z from "zod";
 import { env } from "../config/env.js";
 
 const emailSchema = z.string().email();
 
-// Define transporter once outside the route function
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // Use SSL for port 465
-  auth: {
-    user: env.EMAIL,
-    pass: env.EMAIL_PASSWORD, // Must be a 16-character Google App Password
-  },
-  connectionTimeout: 10000, 
-  socketTimeout: 10000,
-});
+// Resend uses HTTP API (Port 443), which works on Render without port blocking issues
+const resend = new Resend(env.RESEND_API_KEY);
 
-/** Notifies that a new user wants beta access. */
 export const sendAccessRequestEmail = async (
   requestedEmail: string 
 ): Promise<void> => {
 
   const validatedEmail = emailSchema.parse(requestedEmail);
 
+
   const adminEmail = env.EMAIL; 
-  
+
   const htmlTemplate = `
 <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 450px; margin: 0 auto; padding: 0; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
   <div style="height: 6px; background: linear-gradient(to right, #4facfe, #00f2fe, #43e97b);"></div>
@@ -61,10 +51,12 @@ export const sendAccessRequestEmail = async (
 </div>
 `;
 
-  await transporter.sendMail({
-    from: `"EmailSweep System" <${adminEmail}>`,
-    to: adminEmail, // Send the notification TO YOURSELF
+  await resend.emails.send({
+    from: "EmailSweep <onboarding@resend.dev>", // Or your verified domain
+    to: adminEmail,
     subject: `🚨 Access Request: ${validatedEmail}`,
     html: htmlTemplate,
   });
 };
+
+
