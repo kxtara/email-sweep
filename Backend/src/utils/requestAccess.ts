@@ -2,7 +2,22 @@ import nodemailer from "nodemailer";
 import z from "zod";
 import { env } from "../config/env.js";
 
-const emailSchema = z.email();
+const emailSchema = z.string().email();
+
+// Define transporter once outside the route function
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // TLS
+  auth: {
+    user: env.EMAIL,
+    pass: env.EMAIL_PASSWORD,
+  },
+  // Set explicit timeouts to fail fast if blocked
+  connectionTimeout: 10000, 
+  greetingTimeout: 5000,
+  socketTimeout: 10000,
+});
 
 /** Notifies that a new user wants beta access. */
 export const sendAccessRequestEmail = async (
@@ -10,16 +25,6 @@ export const sendAccessRequestEmail = async (
 ): Promise<void> => {
 
   const validatedEmail = emailSchema.parse(requestedEmail);
-
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    port: 587,              // Use 587 instead of 25
-    secure: false,          // true for port 465, false for 587
-    auth: {
-      user: env.EMAIL,
-      pass: env.EMAIL_PASSWORD,
-    },
-  });
 
   const adminEmail = env.EMAIL; 
   
